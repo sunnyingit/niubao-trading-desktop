@@ -154,7 +154,7 @@ func askIntentPrompt() string {
 - stock_followup：在追问本会话上一只股票（「它怎么样」「这个产业走下坡路吗」「再展开」）。需要 last_code 存在。
 - stock_new：新点名一只股票（「分析三花智控」「603986怎么看」）。
 - sector_theme：在问某个具名板块/产业/概念本身（「分析AI硬件这个板块」「半导体板块怎么样」），即使会话里刚聊过某只股票，也不要绑那只股票。
-- market_screen：全市场筛选/名单（「连涨3天以上有哪些」「涨停池」），或「推荐几只某类票」但未落到单票。
+- market_screen：全市场筛选/名单（「连涨3天以上有哪些」「涨停池」「今天净流出/净流入前10」），或「推荐几只某类票」但未落到单票。个股资金榜走 market（fetch_market_topflow），不是 volume_flow。
 - general：其他闲聊或无法归类、且不该绑上一只股票。
 
 规则：
@@ -163,7 +163,7 @@ func askIntentPrompt() string {
 3. 用户明确写了股票名或代码 → stock_new；stock_query 填名称或代码。
 4. sector_theme / market_screen / general：reuse_last 必须为 false；不要填 stock_query（除非用户同句点了股票）。
 5. 「推荐两只这几个板块的优质股票并对比」这类：若本句没有具名板块 → market_screen 或 general；ask 保持用户原意（推荐+对比），不要改写成「先确认板块范围」；theme 可空；note 可用「板块未点名，交主理人澄清」。
-6. analysts 仅在需要个股维度分析时给，从 market,volume_flow,sector,news,finance,fundamental 里选，最多 3 个；有大盘时 market 放第一；板块主题可建议 ["market","sector"]；拿不准就空数组。
+6. analysts 仅在需要个股维度分析时给，从 market,volume_flow,sector,news,finance,fundamental 里选，最多 3 个；有大盘时 market 放第一；板块主题可建议 ["market","sector"]；「净流入/流出 Top」「资金榜」类 → ["market"]；拿不准就空数组。
 7. note 用一句短中文，给界面提示（例如「按板块话题，不绑定上一只股票」）。不要写成长指令。
 
 最后一条回复只能是一个 JSON 对象，不要代码围栏：

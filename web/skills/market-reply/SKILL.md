@@ -9,6 +9,7 @@ description: >-
 
 开场结论仍用 `market-facts`。用户追问时用 markdown 展开，不要输出开场 JSON；按问题选一个工具：
 
+- 全市场个股净流入/净流出 Top：`fetch_market_topflow`（可传 days、side=in|out|both；不要叫主力）
 - 市场资金（成交/宽基/两融）：`fetch_market_fund`
 - 国家队：`fetch_market_team`
 - 全市场板块轮动：`fetch_market_sector`（不是个股归属）

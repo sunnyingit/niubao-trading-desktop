@@ -6,14 +6,16 @@
 
 | 工具 | 什么时候用 |
 |---|---|
-| `fetch_market_fund` | 市场资金：成交、宽基 ETF、两融 |
+| `fetch_market_topflow` | **全市场个股**东财净流入/净流出 Top10。用户问「流入/流出前10」「资金榜」时用。可传 `days`（1/3/5/10/20/60）、`side`（in/out/both）。不要说没有排行接口。不要把净流入叫做主力。 |
+| `fetch_market_fund` | 市场资金：成交、宽基 ETF、两融（不是个股排行） |
 | `fetch_market_team` | 国家队：份额/托市/异动口径 |
 | `fetch_market_sector` | **全市场**板块轮动、分桶（不是个股归属） |
 | `fetch_market_mood` | 好不好做：宽度、涨跌停、情绪 |
 | `fetch_market_cal` | 日历 |
 | `fetch_market_macro` | 宏观 |
 
-不要一次调完全部 tab。数字只抄返回的 `text` / `facts`。禁止 Tushare。要图时再 `render_chart`。
+不要一次调完全部 tab。数字只抄返回的 `text` / `facts` / 榜单字段。禁止 Tushare。要图时再 `render_chart`。
+问资金榜时优先 `fetch_market_topflow`，不要用 mood/fund 凑合，也不要推给资金流分析师。
 
 ## 怎么答
 
