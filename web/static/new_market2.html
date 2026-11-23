@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>市场 · 答案优先原型 v2</title>
+<style>
+/* ============ 令牌（同源） ============ */
+:root{
+  --ink-900:#14171F; --ink-700:#3A4250; --ink-600:#5B6372; --ink-400:#8A919E; --ink-300:#A1A7B2; --ink-200:#C9CED6;
+  --bg-page:#F2F2F2; --bg-card:#FFFFFF; --bg-subtle:#F7F8FA; --bg-muted:#F1F2F4;
+  --line:#E3E6EB; --line-strong:#DDE1E7;
+  --blue:#2457D6; --blue-deep:#1F3F8A; --blue-bg:#EAF0FD; --blue-line:#C9D7F5;
+  --up:#B42318; --up-bg:#FDF0EF; --dn:#1E6B44; --dn-bg:#EDF7F1;
+  --warn:#7A4A00; --warn-bg:#FFF1D6;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{font-variant-numeric:tabular-nums}
+body{margin:0;background:var(--bg-page);font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif;color:var(--ink-900);font-size:13px;line-height:1.55}
+.mono{font-family:var(--mono)}
+.up{color:var(--up)} .dn{color:var(--dn)}
+
+/* 顶栏 */
+.top{display:flex;align-items:center;height:48px;background:#FAFAFA;border-bottom:1px solid var(--line);padding:0 20px;gap:12px;position:sticky;top:0;z-index:5}
+.top b{font-size:15px}
+.top .sub{font-size:12px;color:var(--ink-400)}
+.top .sp{flex:1}
+.mini{display:inline-flex;align-items:center;height:28px;padding:0 10px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:var(--blue);font-size:12px;cursor:pointer;white-space:nowrap}
+.mini:hover{background:var(--blue-bg);border-color:var(--blue)}
+
+/* ============ 答案区：卡片，紧凑 ============ */
+.answer{max-width:1240px;margin:0 auto;padding:16px 20px 0}
+.ans-card{display:flex;gap:20px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.ans-main{flex:1;min-width:340px}
+.ans-lv{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.05;color:var(--dn)}
+.ans-meta{margin-top:6px;font-size:13px;color:var(--ink-600);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ans-meta b{color:var(--ink-900)}
+.tag{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:5px;font-size:11px;font-weight:600}
+.tag.bad{background:var(--dn-bg);color:var(--dn)} .tag.flat{background:var(--bg-muted);color:var(--ink-700)}
+.tag.warn{background:var(--warn-bg);color:var(--warn)}
+.sigs{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.sig{display:flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;cursor:pointer}
+.sig:hover{border-color:var(--blue)}
+.sig .k{font-size:12px;color:var(--ink-400)}
+.sig .v{font-size:15px;font-weight:700}
+.howto{margin-top:10px;padding:10px 14px;border-radius:10px;background:var(--bg-subtle);border:1px solid var(--line);font-size:14px;line-height:1.65;max-width:760px}
+.howto b{color:var(--ink-900)}
+/* 距改判：右侧活性指标卡 */
+.gap{flex:none;width:250px;border-left:1px solid var(--bg-muted);padding:2px 0 2px 18px}
+.gap .n{font-size:30px;font-weight:700;font-family:var(--mono);line-height:1;color:var(--warn)}
+.gap .n small{font-size:13px;font-weight:600;color:var(--ink-400);font-family:inherit}
+.gap .t{font-size:12px;color:var(--ink-600);margin-top:6px}
+.gap details{margin-top:8px}
+.gap summary{cursor:pointer;font-size:12px;color:var(--blue);list-style:none;user-select:none}
+.gap summary::-webkit-details-marker{display:none}
+.gap .list{margin-top:6px;display:flex;flex-direction:column;gap:3px}
+.gap .li{display:flex;gap:6px;font-size:12px;color:var(--ink-900);align-items:baseline}
+.gap .li.off{color:var(--ink-400)}
+.gap .li .d{flex:none;width:8px;height:8px;border-radius:50%;background:var(--ink-200);margin-top:5px}
+.gap .li.on .d{background:var(--ink-900)}
+.gap .li b{margin-left:auto;font-weight:600;font-family:var(--mono)}
+
+/* ============ 今日变化流 ============ */
+.changes{max-width:1240px;margin:14px auto 0;padding:0 20px}
+.changes-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.changes-h{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.changes-h b{font-size:14px}
+.changes-h span{font-size:11px;color:var(--ink-400)}
+.flow{display:flex;gap:8px;flex-wrap:wrap}
+.chg{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px;white-space:nowrap}
+.chg .who{color:var(--ink-400)}
+.chg b{font-weight:650}
+.chg .arr{font-family:var(--mono);font-weight:650}
+.chg.hi-up b,.chg.hi-up .arr{color:var(--up)}
+.chg.hi-dn b,.chg.hi-dn .arr{color:var(--dn)}
+.chg .dir{font-size:11px;font-weight:700}
+
+/* ============ 分隔标尺（层与层之间） ============ */
+.layer{max-width:1240px;margin:22px auto 0;padding:0 20px}
+.layer-h{display:flex;align-items:center;gap:10px;margin:0 2px 8px}
+.layer-h .n{font-size:11px;font-weight:650;letter-spacing:.12em;color:var(--ink-300)}
+.layer-h .ln{display:none}
+
+/* ============ 模块壳（v1 规范沿用，收紧） ============ */
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px 48px;display:flex;flex-direction:column;gap:14px}
+.mod{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.mod-h{display:flex;align-items:center;gap:8px;min-height:42px;padding:5px 16px;border-bottom:1px solid var(--bg-muted);flex-wrap:wrap}
+.mod-t{font-size:14px;font-weight:700}
+.mod-h .ops{margin-left:auto}
+.link{border:none;background:none;padding:0;font-size:12px;color:var(--blue);cursor:pointer}
+.mod-b{padding:12px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.mod-f{padding:7px 16px;border-top:1px solid var(--bg-muted);font-size:11px;color:var(--ink-400)}
+.mod-f b{color:var(--ink-600);font-weight:600}
+.pill{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:12px;font-weight:700}
+.pill.s{height:19px;padding:0 7px;font-size:11px;font-weight:600}
+.pill.good{background:var(--up-bg);color:var(--up)} .pill.bad{background:var(--dn-bg);color:var(--dn)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.flat{background:var(--bg-muted);color:var(--ink-700)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}
+@media (max-width:980px){.duo{grid-template-columns:1fr}}
+
+/* 证据：宫格 + 阶段 */
+.grid12{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:1fr;gap:6px}
+.cell{border:1px solid var(--bg-muted);border-radius:8px;background:var(--bg-subtle);padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.cell .t{font-size:11px;color:var(--ink-400)}
+.cell .v{font-size:14px;font-weight:650}
+.cell .f{font-size:11px;color:var(--ink-600)}
+.stage{display:flex;gap:6px}
+.stage span{flex:1;text-align:center;height:28px;line-height:26px;border-radius:8px;font-size:12px;font-weight:500;color:var(--ink-400);border:1px solid transparent}
+.stage span.on{font-weight:650;background:#fff;border-color:currentColor;box-shadow:0 1px 2px rgba(20,23,31,.05)}
+
+/* 板块 */
+.picks{display:flex;gap:8px;flex-wrap:wrap}
+.pick{padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:104px;display:flex;flex-direction:column;gap:2px}
+.pick .n{font-size:13px;font-weight:650}
+.pick .f{font-size:11px;color:var(--ink-600)}
+.boards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.board{border:1px solid var(--bg-muted);border-radius:8px;background:var(--bg-subtle);padding:8px 10px}
+.board h6{margin:0 0 2px;font-size:11px;font-weight:650;color:var(--ink-400);letter-spacing:.04em}
+.brow{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-top:1px solid var(--bg-muted);font-size:12px}
+.brow:first-of-type{border-top:none}
+.brow .nm{font-weight:650}
+.brow .ret{margin-left:auto;font-family:var(--mono);font-weight:650}
+.more{align-self:flex-start;height:26px;padding:0 10px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;font-size:12px;font-weight:600;color:var(--ink-700);cursor:pointer}
+
+/* 个股资金流 */
+.stockflow{width:100%;border-collapse:collapse}
+.stockflow th{font-size:11px;font-weight:500;color:var(--ink-400);text-align:right;padding:4px 8px;border-bottom:1px solid var(--bg-muted)}
+.stockflow th:first-child{text-align:left}
+.stockflow td{padding:8px;border-top:1px solid var(--bg-muted);text-align:right;font-size:12px;white-space:nowrap}
+.stockflow td:first-child{text-align:left;font-weight:600}
+.stockflow td.num{font-family:var(--mono);font-weight:600}
+
+/* 背景层：热闻/宏观/日历/外盘 低密度 */
+.news .nrow{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--bg-muted);align-items:baseline}
+.news .nrow:first-child{border-top:none}
+.news .r{font-family:var(--mono);width:22px;font-size:12px;color:var(--ink-300);font-weight:600}
+.news .r.top{color:var(--up)}
+.news .t{flex:1;font-size:13px}
+.news .h{font-family:var(--mono);font-size:11px;color:var(--ink-400)}
+.qa{display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--bg-muted);align-items:center}
+.qa:first-child{border-top:none}
+.qa .dot{width:10px;height:10px;border-radius:50%}
+.qa .q{font-size:12px;color:var(--ink-400)}
+.qa .a{margin-left:auto;font-size:14px;font-weight:650}
+.calrow{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--bg-muted);font-size:12px}
+.calrow:first-child{border-top:none}
+.calrow .d{font-family:var(--mono);color:var(--ink-400);width:70px;flex:none}
+.ov{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ovc{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff}
+.ovc .n{font-size:12px;font-weight:600}
+.ovc .p{font-family:var(--mono);font-size:15px;font-weight:700;margin-top:2px}
+.ovc .c{font-family:var(--mono);font-size:11px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <b>市场</b><span class="sub">2026-11-20 盘后 · 数据齐</span>
+  <span class="mono sub">上证 3584.58 −0.50% · 创业板 2292.20 −1.20%</span>
+  <span class="sp"></span>
+  <button class="mini">行情</button><button class="mini">问大盘分析师</button>
+</div>
+
+<!-- ═══════════ 首屏：只有答案 ═══════════ -->
+<div class="answer">
+  <div class="ans-row">
+    <div class="ans-main">
+      <div class="ans-lv">逆风</div>
+      <div class="ans-meta">
+        <span class="tag bad">偏空 · 弱</span><span>闸门</span><b>不过 · 只减不加</b>
+        <span style="color:var(--ink-300)">｜</span><span>已连续</span><b class="mono">4</b><span>天逆风</span>
+      </div>
+      <div class="sigs">
+        <div class="sig" title="点进资金详情"><span class="k">钱</span><span class="v dn">偏弱</span></div>
+        <div class="sig" title="点进国家队详情"><span class="k">国家队</span><span class="v" style="color:var(--ink-700)">还在</span></div>
+        <div class="sig" title="点进情绪详情"><span class="k">情绪</span><span class="v" style="color:var(--ink-700)">冰点 <span class="mono" style="font-size:12px">→</span> 修复</span></div>
+      </div>
+      <div class="howto"><b>怎么做：</b>持仓只减不加；想买清单暂停新增，等「钱」过闸门再放开。跌破 <span class="mono">3520</span> 减仓节奏加快。</div>
+    </div>
+    <!-- 活性指标：复访的钩子 -->
+    <div class="gap">
+      <div class="n">3 <small>/ 6 格</small></div>
+      <div class="t">距改判还差的格子（变好差 3 · 变差已中 2）</div>
+      <details>
+        <summary>展开条件清单 ▾</summary>
+        <div class="list">
+          <div class="li off"><span class="d"></span>成交回 1.7 万亿<b>1.46</b></div>
+          <div class="li off"><span class="d"></span>宽基连 3 日净申购<b>2/3</b></div>
+          <div class="li off"><span class="d"></span>情绪过修复<b>冰点</b></div>
+          <div class="li on"><span class="d"></span>两融止降<b>5 日连降</b></div>
+          <div class="li on"><span class="d"></span>涨停 &gt; 跌停<b>12% : 51%</b></div>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 今日变化流：每天打开的理由 ═══════════ -->
+<div class="changes">
+  <div class="changes-card">
+  <div class="changes-h"><b>今日变化</b><span>比昨天 · 决定明天要不要再看一眼的东西</span></div>
+  <div class="flow">
+    <span class="chg"><span class="who">结论</span><b class="dn">持平 · 逆风第 4 天</b></span>
+    <span class="chg hi-up"><span class="who">宽基</span><b>转入</b><span class="arr">出 → 进</span><span class="dir up">连续 2 日 ↑</span></span>
+    <span class="chg hi-up"><span class="who">情绪</span><b>升档</b><span class="arr">冰点 → 修复</span><span class="dir up">↑</span></span>
+    <span class="chg"><span class="who">CPO</span><b>迁桶</b><span class="arr">在出 → 左侧</span><span class="dir" style="color:var(--warn)">↗</span></span>
+    <span class="chg"><span class="who">两融</span><b>仍在降</b><span class="dir dn">5 日连降 ↓</span></span>
+    <span class="chg"><span class="who">改判</span><b>无</b><span style="color:var(--ink-300)">自 11-15 起未变</span></span>
+    <span class="chg"><span class="who">家用电器</span><b>新进「在攻」</b><span class="arr">— → 攻</span><span class="dir up">↑</span></span>
+  </div>
+  </div>
+</div>
+
+<!-- ═══════════ 证据层 ═══════════ -->
+<div class="layer"><div class="layer-h"><span class="n">证据 · 凭什么这么说</span><div class="ln"></div></div></div>
+<div class="wrap">
+  <section class="mod">
+    <header class="mod-h"><span class="mod-t">钱 · 国家队 · 情绪</span>
+      <span class="ops"><button class="link">点三格进详情 →</button></span></header>
+    <div class="mod-b">
+      <div class="grid12">
+        <div class="cell"><span class="t">新钱</span><span class="v">基本没有</span><span class="f">净申购 +264 亿</span></div>
+        <div class="cell"><span class="t">旧钱</span><span class="v">有</span><span class="f">融资净买入 −186 亿</span></div>
+        <div class="cell"><span class="t">活跃度</span><span class="v">偏冷清</span><span class="f">今天 1.46 万亿</span></div>
+        <div class="cell"><span class="t">份额</span><span class="v">钱还在</span><span class="f">148 亿份</span></div>
+        <div class="cell"><span class="t">在撤</span><span class="v">暂无</span><span class="f">当日 +203 亿</span></div>
+        <div class="cell"><span class="t">托市</span><span class="v">10-15 起</span><span class="f">净申购 +779 亿</span></div>
+        <div class="cell"><span class="t">趋势</span><span class="v">向下</span><span class="f">60 日线下 0/4</span></div>
+        <div class="cell"><span class="t">强度</span><span class="v">弱</span><span class="f">涨停 12% 分位</span></div>
+        <div class="cell"><span class="t">主线</span><span class="v">无主线</span><span class="f">连板 2 家</span></div>
+        <div class="cell"><span class="t">宽度</span><span class="v">极窄</span><span class="f">上涨 12%</span></div>
+        <div class="cell"><span class="t">情绪</span><span class="v">修复</span><span class="f">炸板 51%</span></div>
+        <div class="cell"><span class="t">成交量</span><span class="v">冷清</span><span class="f">Mz −1.8</span></div>
+      </div>
+      <div class="stage"><span>冰点</span><span class="on" style="color:#3A4250">修复</span><span>发酵</span><span>高潮</span><span>退潮</span></div>
+    </div>
+    <footer class="mod-f"><b>口径</b>点格进抽屉详情 · 钱看成交/宽基/两融 · 情绪看趋势宽度追涨</footer>
+  </section>
+
+  <section class="mod">
+    <header class="mod-h"><span class="mod-t">板块</span><span class="pill warn s">在攻 2 · 在出 6</span>
+      <span class="ops"><button class="link">看全部 31 →</button></span></header>
+    <div class="mod-b">
+      <div class="picks">
+        <div class="pick"><span class="n">家用电器</span><span class="f">可跟 · 近 5 日 +4.2% · 新进</span></div>
+        <div class="pick"><span class="n">食品饮料</span><span class="f">可盯 · 资金偏进</span></div>
+        <div class="pick"><span class="n">CPO</span><span class="f">左侧 · 价跌钱进</span></div>
+      </div>
+      <div class="boards">
+        <div class="board"><h6>在攻 · 量价 + 资金同向</h6>
+          <div class="brow"><span class="nm">家用电器</span><span class="ret up">+4.2%</span></div>
+          <div class="brow"><span class="nm">食品饮料</span><span class="ret up">+2.8%</span></div>
+          <button class="more">还有 6 个 · 展开</button>
+        </div>
+        <div class="board"><h6>在出 · 钱在撤</h6>
+          <div class="brow"><span class="nm">机械设备</span><span class="ret dn">−3.1%</span></div>
+          <div class="brow"><span class="nm">PCB</span><span class="ret dn">−4.6%</span></div>
+          <button class="more">还有 6 个 · 展开</button>
+        </div>
+      </div>
+    </div>
+    <footer class="mod-f"><b>口径</b>涨跌按自身近 3 日累计 · 在攻=钱进且价强</footer>
+  </section>
+</div>
+
+<!-- ═══════════ 机会层 ═══════════ -->
+<div class="layer"><div class="layer-h"><span class="n">机会 · 我关心的票</span><div class="ln"></div></div></div>
+<div class="wrap">
+  <section class="mod">
+    <header class="mod-h"><span class="mod-t">个股资金流</span><span class="pill warn s">4 进 6 出</span>
+      <span class="ops"><button class="link">问资金流分析师 →</button></span></header>
+    <div class="mod-b" style="padding:8px 16px">
+      <table class="stockflow">
+        <thead><tr><th>自选</th><th>近 1 日</th><th>近 3 日</th><th>近 5 日</th><th>方向</th></tr></thead>
+        <tbody>
+          <tr><td>宁德时代</td><td class="num up">+0.89</td><td class="num up">+4.28</td><td class="num up">+11.81</td><td><span class="pill good s">转入</span></td></tr>
+          <tr><td>三花智控</td><td class="num dn">−0.77</td><td class="num dn">−2.27</td><td class="num dn">−4.07</td><td><span class="pill bad s">转出</span></td></tr>
+          <tr><td>兆易创新</td><td class="num dn">−7.25</td><td class="num dn">−6.92</td><td class="num dn">−25.52</td><td><span class="pill bad s">加速出</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <footer class="mod-f"><b>口径</b>东财大资金净额（亿）· 点行进个股详情 · 仅自选/想买</footer>
+  </section>
+</div>
+
+<!-- ═══════════ 背景层 ═══════════ -->
+<div class="layer"><div class="layer-h"><span class="n">背景 · 扫一眼就行</span><div class="ln"></div></div></div>
+<div class="wrap">
+  <div class="duo">
+    <section class="mod">
+      <header class="mod-h"><span class="mod-t">热闻</span><span class="ops"><button class="link">问新闻分析师 →</button></span></header>
+      <div class="mod-b news" style="padding:8px 16px">
+        <div class="nrow"><span class="r top">01</span><span class="t">美联储 12 月议息临近，降息预期反复</span><span class="h">484万</span></div>
+        <div class="nrow"><span class="r top">02</span><span class="t">新能源车购置税优惠退坡倒计时</span><span class="h">468万</span></div>
+        <div class="nrow"><span class="r">03</span><span class="t">半导体设备国产化率提速</span><span class="h">452万</span></div>
+      </div>
+      <footer class="mod-f"><b>口径</b>热榜加权 · 只是热度不是利好</footer>
+    </section>
+    <section class="mod">
+      <header class="mod-h"><span class="mod-t">宏观</span><span class="pill flat s">2.33 · 中性</span><span class="ops"><button class="link">看依据 →</button></span></header>
+      <div class="mod-b" style="padding:8px 16px">
+        <div class="qa"><span class="dot" style="background:#C27C0E"></span><span class="q">流动性</span><span class="a mono">3 分</span></div>
+        <div class="qa"><span class="dot" style="background:#C27C0E"></span><span class="q">盈利</span><span class="a mono">1 分</span></div>
+        <div class="qa"><span class="dot" style="background:#2E2A26"></span><span class="q">估值</span><span class="a mono">3 分</span></div>
+      </div>
+      <footer class="mod-f"><b>口径</b>1/3/5 分速算 · 位置不是预测</footer>
+    </section>
+  </div>
+  <div class="duo">
+    <section class="mod">
+      <header class="mod-h"><span class="mod-t">日历</span><span class="pill warn s">2 件涉自选</span><span class="ops"><button class="link">看依据 →</button></span></header>
+      <div class="mod-b" style="padding:8px 16px">
+        <div class="calrow"><span class="d">11-21 五</span><span style="flex:1">宁德时代 解禁 12.4 亿</span><span class="pill warn s">解禁</span></div>
+        <div class="calrow"><span class="d">11-25 二</span><span style="flex:1">11 月 LPR 报价</span><span class="pill flat s">数据</span></div>
+      </div>
+    </section>
+    <section class="mod">
+      <header class="mod-h"><span class="mod-t">外盘</span><span class="pill flat s">偏弱</span><span class="ops"><button class="link">＋ 添加</button></span></header>
+      <div class="mod-b" style="padding:10px 16px">
+        <div class="ov">
+          <div class="ovc"><div class="n">标普 500</div><div class="p">5988.4</div><div class="c dn">−0.61%</div></div>
+          <div class="ovc"><div class="n">纳指</div><div class="p">19223.3</div><div class="c dn">−0.83%</div></div>
+          <div class="ovc"><div class="n">费半</div><div class="p">5120.8</div><div class="c dn">−1.24%</div></div>
+          <div class="ovc"><div class="n">KOSPI</div><div class="p">2451.2</div><div class="c up">+0.35%</div></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+</body>
+</html>

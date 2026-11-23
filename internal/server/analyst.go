@@ -326,6 +326,8 @@ func analystToolLabel(name string) string {
 		return "读市场日历"
 	case "fetch_market_macro":
 		return "读宏观"
+	case "fetch_market_topflow":
+		return "看资金榜"
 	default:
 		if name == "" {
 			return ""
@@ -1364,16 +1366,26 @@ func (s *Server) registerMarketTools(toolRegistry *coretools.Registry, cfg agent
 		{"fetch_market_mood", "读取好不好做：宽度、涨跌停、情绪阶段。"},
 		{"fetch_market_cal", "读取市场日历与近期事件。"},
 		{"fetch_market_macro", "读取宏观摘要。"},
+		{"fetch_market_topflow", "读取全市场东财个股净流入/净流出 Top10。可传 days（1/3/5/10/20/60）与 side（in 净流入、out 净流出、both 两边都要）。用户问「今天流出前10」「近5日净流入榜」时用。市场级，与个股无关。不要把净流入叫做主力。"},
 	}
 	for _, part := range parts {
 		name := strings.TrimPrefix(part.name, "fetch_market_")
 		partName := name
+		params := coretools.ParameterSchema{
+			"ts_code": {ValueSchema: coretools.ValueSchema{Kind: coretools.KindString, Description: "可省略。市场级数据与个股无关；若用户点名了指数可传 399006.SZ 等，禁止填无关个股"}},
+		}
+		if partName == "topflow" {
+			params["days"] = coretools.Param{
+				ValueSchema: coretools.ValueSchema{Kind: coretools.KindNumber, Description: "交易日窗口：1、3、5、10、20、60。不传默认 1（当日）"},
+			}
+			params["side"] = coretools.Param{
+				ValueSchema: coretools.ValueSchema{Kind: coretools.KindString, Description: "in=净流入 Top，out=净流出 Top，both=两边。不传默认 both"},
+			}
+		}
 		tool := coretools.ToolDefinition{
 			Name:        part.name,
 			Description: part.text + "走市场服务，不能改走 Tushare。不要为了凑参数去填上一只个股代码。",
-			Parameters: coretools.ParameterSchema{
-				"ts_code": {ValueSchema: coretools.ValueSchema{Kind: coretools.KindString, Description: "可省略。市场级数据与个股无关；若用户点名了指数可传 399006.SZ 等，禁止填无关个股"}},
-			},
+			Parameters:  params,
 			Output: coretools.Output{
 				Schema: coretools.ValueSchema{Kind: coretools.KindString},
 				Render: renderStringResult,
@@ -1392,6 +1404,13 @@ func (s *Server) registerMarketTools(toolRegistry *coretools.Registry, cfg agent
 					}
 					code = resolved
 				}
+				if partName == "topflow" {
+					return s.runMarketTopflow(pythonBin, script)(ctx, map[string]any{
+						"ts_code": code,
+						"days":    args["days"],
+						"side":    args["side"],
+					}, run)
+				}
 				return s.runPart(pythonBin, script, partName)(ctx, map[string]any{"ts_code": code}, run)
 			},
 		}
@@ -1400,6 +1419,49 @@ func (s *Server) registerMarketTools(toolRegistry *coretools.Registry, cfg agent
 		}
 	}
 	return nil
+}
+
+func (s *Server) runMarketTopflow(pythonBin, script string) func(context.Context, map[string]any, *coretools.RunContext) (any, error) {
+	return func(ctx context.Context, args map[string]any, _ *coretools.RunContext) (any, error) {
+		code := strings.ToUpper(strings.TrimSpace(fmt.Sprint(args["ts_code"])))
+		if !tsCodePattern.MatchString(code) {
+			return "", fmt.Errorf("ts_code 必须是 600519.SH 这种代码")
+		}
+		argv := []string{script, code, "topflow"}
+		if days := flowDays(args["days"]); days > 0 {
+			argv = append(argv, strconv.Itoa(days))
+		} else {
+			argv = append(argv, "1")
+		}
+		side := strings.ToLower(strings.TrimSpace(fmt.Sprint(args["side"])))
+		if side == "<nil>" || side == "nil" || side == "null" || side == "-" {
+			side = ""
+		}
+		if side == "" {
+			side = "both"
+		}
+		if side != "in" && side != "out" && side != "both" {
+			return "", fmt.Errorf("side 必须是 in、out 或 both")
+		}
+		argv = append(argv, side)
+		cmd := exec.CommandContext(ctx, pythonBin, argv...)
+		cmd.Env = basicEnv()
+		var out bytes.Buffer
+		cmd.Stdout = &out
+		cmd.Stderr = &out
+		if err := cmd.Run(); err != nil {
+			captured := strings.TrimSpace(out.String())
+			if captured == "" {
+				return "", fmt.Errorf("读取资金榜失败: %v", err)
+			}
+			return "", fmt.Errorf("读取资金榜失败: %s", captured)
+		}
+		text := strings.TrimSpace(out.String())
+		if text == "" {
+			return "", errors.New("资金榜没有返回")
+		}
+		return text, nil
+	}
 }
 
 func (s *Server) registerFundamentalTools(toolRegistry *coretools.Registry, cfg agentConfig) error {

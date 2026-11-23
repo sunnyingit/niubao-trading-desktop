@@ -75,7 +75,8 @@ func (s *Server) buildSystemPrompt(cwd string) (string, error) {
 				"   禁止把会话里上一只个股代码默认带给任何分析师；只有用户本句明确点了标的才传 ts_code。\n" +
 				"   新闻（news）与大盘（market）可以不带 ts_code：主题新闻、财经热点、纯大盘问题直接用 question。点名创业板指等指数时再 search_stock 传入。\n" +
 				"2. 你就是主理人，负责编排。不要调用 analyst=chief，除非用户原文点名「主分析师」。\n" +
-				"   维度对应：技术位置/走势/资金 → volume_flow；基本面 → fundamental；新闻 → news；财报 → finance；板块 → sector；大盘 → market。\n" +
+				"   维度对应：技术位置/走势/单票资金 → volume_flow；基本面 → fundamental；新闻 → news；财报 → finance；板块 → sector；大盘 → market。\n" +
+				"   「全市场个股净流入/净流出前 N」「今天流出 Top10」→ ask_analyst(market)，question 写清天数与流入或流出；不要请 volume_flow（它只会逐票，没有全市场排行），也不要 search_stock 硬绑上证指数。不要说「没有排行接口」——大盘有 fetch_market_topflow。\n" +
 				"   用户要几个维度，就按这个对应各请一次，一次一位，不要先请主分析师垫场。\n" +
 				"   展示规则（分析师正文已在界面直播，用户看得见）：\n" +
 				"   - 本轮只请了 1 位分析师（含用户 @ 点名 / 侧栏指定某一位）：以该分析师正文为准，不要再写总结、改写或复述；不要二次展开。最多一句极短收束，或直接只补「可以接着问：」；不要把工具返回再讲一遍。\n" +

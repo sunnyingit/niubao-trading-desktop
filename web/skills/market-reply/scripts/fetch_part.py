@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Read one market tab slice for the market analyst. Does not call Tushare.
 
-Usage: fetch_part.py <ts_code> <fund|team|sector|mood|cal|macro>
+Usage: fetch_part.py <ts_code> <fund|team|sector|mood|cal|macro|topflow> [days] [side]
 """
 
 from __future__ import annotations
@@ -13,17 +13,42 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-PARTS = ("fund", "team", "sector", "mood", "cal", "macro")
+PARTS = ("fund", "team", "sector", "mood", "cal", "macro", "topflow")
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) != 3 or argv[2] not in PARTS or not argv[1].strip():
-        sys.stderr.write("usage: fetch_part.py <ts_code> <fund|team|sector|mood|cal|macro>\n")
+    if len(argv) < 3 or argv[2] not in PARTS or not argv[1].strip():
+        sys.stderr.write(
+            "usage: fetch_part.py <ts_code> <fund|team|sector|mood|cal|macro|topflow> [days] [side]\n"
+        )
         return 2
+    days = ""
+    side = ""
+    if len(argv) >= 4:
+        days = argv[3].strip()
+        if days and not days.isdigit():
+            sys.stderr.write("days must be a positive integer\n")
+            return 2
+    if len(argv) >= 5:
+        side = argv[4].strip().lower()
+        if side and side not in ("in", "out", "both"):
+            sys.stderr.write("side must be in|out|both\n")
+            return 2
+    if len(argv) > 5:
+        sys.stderr.write(
+            "usage: fetch_part.py <ts_code> <fund|team|sector|mood|cal|macro|topflow> [days] [side]\n"
+        )
+        return 2
+
     base = os.environ.get("STOCK_API_BASE", "http://127.0.0.1:8090").rstrip("/")
     code = urllib.parse.quote(argv[1].strip(), safe="")
     part = argv[2]
-    url = f"{base}/api/v1/stocks/{code}/dimensions/market/reply?part={part}"
+    query = [("part", part)]
+    if days:
+        query.append(("days", days))
+    if side:
+        query.append(("side", side))
+    url = f"{base}/api/v1/stocks/{code}/dimensions/market/reply?" + urllib.parse.urlencode(query)
     request = urllib.request.Request(url, headers={"Accept": "application/json"})
     try:
         with urllib.request.urlopen(request, timeout=120) as response:

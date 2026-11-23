@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>市场 v6 · 固定五区模板</title>
+<style>
+:root{
+  --ink-900:#14171F;--ink-700:#3A4250;--ink-600:#5B6372;--ink-400:#8A919E;--ink-300:#A1A7B2;--ink-200:#C9CED6;
+  --bg-page:#F2F2F2;--bg-card:#FFF;--bg-subtle:#F7F8FA;--bg-muted:#F1F2F4;
+  --line:#E3E6EB;--line-strong:#DDE1E7;
+  --blue:#2457D6;--blue-deep:#1F3F8A;--blue-bg:#EAF0FD;
+  --up:#B42318;--up-bg:#FDF0EF;--dn:#1E6B44;--dn-bg:#EDF7F1;--warn:#7A4A00;--warn-bg:#FFF1D6;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}html{font-variant-numeric:tabular-nums}
+body{margin:0;background:var(--bg-page);font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;color:var(--ink-900);font-size:13px;line-height:1.55}
+.num{font-family:var(--mono)}
+.dn{color:var(--dn)}.up{color:var(--up)}
+.top{display:flex;align-items:center;height:48px;background:#FAFAFA;border-bottom:1px solid var(--line);padding:0 20px;gap:12px;position:sticky;top:0;z-index:5}
+.top b{font-size:15px}.top .sub{font-size:12px;color:var(--ink-400)}.top .sp{flex:1}
+.mini{display:inline-flex;align-items:center;height:28px;padding:0 10px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:var(--blue);font-size:12px;cursor:pointer}
+#grid{max-width:1240px;margin:0 auto;padding:14px 20px 48px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:980px){#grid{grid-template-columns:1fr}}
+
+/* ═══ 固定五区模板：每个格子完全相同的版式 ═══ */
+.w{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.w.span2{grid-column:1/-1}
+/* ① 头 */
+.w-h{display:flex;align-items:center;gap:8px;min-height:40px;padding:4px 14px;border-bottom:1px solid var(--bg-muted);flex-wrap:wrap;flex:none}
+.w-t{font-size:14px;font-weight:700}
+.w-h .ops{margin-left:auto;display:flex;gap:10px}
+.wlk{border:none;background:none;padding:0;font-size:12px;color:var(--blue);cursor:pointer;white-space:nowrap}
+.wp{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:999px;font-size:11px;font-weight:700}
+.wp.good{background:var(--up-bg);color:var(--up)}.wp.bad{background:var(--dn-bg);color:var(--dn)}
+.wp.warn{background:var(--warn-bg);color:var(--warn)}.wp.flat{background:var(--bg-muted);color:var(--ink-700)}
+.wa{display:inline-flex;align-items:center;height:16px;padding:0 5px;border-radius:4px;background:var(--bg-muted);color:var(--ink-700);font-size:10px;font-weight:600}
+/* ② 三关键数带：每格必有三数 */
+.w-b{padding:12px 14px 10px;display:flex;flex-direction:column;min-width:0;flex:1}
+.wms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wm{border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:0}
+.wm .k{font-size:10.5px;color:var(--ink-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wm .v{font-size:15px;font-weight:700;margin-top:1px;font-family:var(--mono);white-space:nowrap}
+.wm .s{font-size:10px;color:var(--ink-600);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ③ 一句话答案：每格必有 */
+.wans{margin-top:10px;font-size:13px;line-height:1.65;color:var(--ink-700)}
+.wans b{color:var(--ink-900)}
+/* ④ 明细区：统一行/表 */
+.wrows{margin-top:8px;display:flex;flex-direction:column}
+.wr{display:flex;gap:8px;padding:5px 0;border-top:1px solid var(--bg-muted);align-items:baseline;font-size:12px;min-width:0}
+.wr:first-child{border-top:none}
+.wr .pre{flex:none;font-family:var(--mono);font-size:11px;color:var(--ink-400);width:4.6em}
+.wr .main{flex:none;font-weight:650;color:var(--ink-900)}
+.wr .note{flex:1;min-width:0;color:var(--ink-600);line-height:1.5}
+.wr .note b{color:var(--ink-900);font-weight:650}
+.wr .right{flex:none;font-family:var(--mono);font-weight:650;margin-left:auto;white-space:nowrap}
+.wtb{width:100%;border-collapse:collapse;margin-top:8px}
+.wtb th{font-size:10px;font-weight:500;color:var(--ink-400);text-align:right;padding:2px 6px;border-bottom:1px solid var(--bg-muted);white-space:nowrap}
+.wtb th:first-child{text-align:left}
+.wtb td{padding:5px 6px;border-top:1px solid var(--bg-muted);text-align:right;font-size:12px;white-space:nowrap}
+.wtb td:first-child{text-align:left;font-weight:650}
+.wtb td.num{font-family:var(--mono);font-weight:600}
+.wck2{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;margin-top:6px}
+.wck{display:flex;gap:6px;font-size:11.5px;align-items:baseline;padding:2px 0}
+.wck .d{flex:none;width:7px;height:7px;border-radius:50%;background:var(--ink-200);margin-top:4px}
+.wck.on .d{background:var(--ink-900)}
+.wck .sh{font-weight:600;color:var(--ink-700)}.wck.on .sh{color:var(--ink-900)}
+.wck .nw{color:var(--ink-400)}.wck.on .nw{color:var(--ink-600)}
+.wgl{font-size:11px;font-weight:650;color:var(--ink-400);margin-top:6px}
+/* ⑤ 脚 */
+.w-f{padding:6px 14px;border-top:1px solid var(--bg-muted);font-size:11px;color:var(--ink-400);flex:none}
+.w-f b{color:var(--ink-600);font-weight:600}
+</style>
+</head>
+<body>
+<div class="top">
+  <b>市场</b><span class="sub">2026-11-20 盘后 · 每格同一版式：三关键数 → 一句话 → 明细</span>
+  <span class="sp"></span><button class="mini">问大盘分析师</button><button class="mini">行情</button>
+</div>
+<div id="grid"></div>
+<script>
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ═══ renderWidget：五区固定，数据只填槽位 ═══ */
+function renderWidget(p){
+  const b=[];
+  b.push(`<section class="w${p.span2?' span2':''}">`);
+  /* ① 头 */
+  b.push(`<header class="w-h"><span class="w-t">${esc(p.title)}</span>`);
+  (p.pills||[]).forEach(x=>b.push(`<span class="wp ${x.tone}">${esc(x.text)}</span>`));
+  if(p.age)b.push(`<span class="wa">${esc(p.age)}</span>`);
+  b.push(`<span class="ops">${(p.ops||[]).map(o=>`<button class="wlk">${esc(o)}</button>`).join('')}</span></header>`);
+  b.push(`<div class="w-b">`);
+  /* ② 三关键数（强制 3 个） */
+  b.push(`<div class="wms">${p.metrics.slice(0,3).map(m=>
+    `<div class="wm"><div class="k">${esc(m.k)}</div><div class="v ${m.dir||''}">${esc(m.v)}</div>${m.s?`<div class="s">${esc(m.s)}</div>`:''}</div>`).join('')}</div>`);
+  /* ③ 一句话 */
+  b.push(`<div class="wans">${p.answer}</div>`);
+  /* ④ 明细（rows / groups / table / checks 任选，但样式统一） */
+  if(p.table){
+    b.push(`<table class="wtb"><thead><tr>${p.table.head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>`);
+    p.table.rows.forEach(r=>b.push(`<tr>${r.map((c,i)=>`<td${i>0?' class="num"':''}>${c}</td>`).join('')}</tr>`));
+    b.push(`</tbody></table>`);
+  }
+  (p.groups||[]).forEach(g=>{
+    if(g.label)b.push(`<div class="wgl">${esc(g.label)}</div>`);
+    b.push(`<div class="wrows">${rows(g.rows)}</div>`);
+  });
+  if(p.rows)b.push(`<div class="wrows">${rows(p.rows)}</div>`);
+  if(p.checks)(p.checks).forEach(c=>{
+    b.push(`<div class="wgl">${esc(c.label)}</div><div class="wck2">`);
+    c.items.forEach(i=>b.push(`<div class="wck${i.on?' on':''}"><span class="d"></span><span class="sh">${esc(i.short)}</span><span class="nw">${esc(i.now)}</span></div>`));
+    b.push(`</div>`);
+  });
+  b.push(`</div>`);
+  /* ⑤ 脚 */
+  if(p.foot)b.push(`<footer class="w-f"><b>口径</b>${esc(p.foot)}</footer>`);
+  b.push(`</section>`);
+  return b.join('');
+}
+function rows(rs){
+  return rs.map(r=>{
+    const q=[];
+    if(r.pre)q.push(`<span class="pre">${esc(r.pre)}</span>`);
+    if(r.main)q.push(`<span class="main">${esc(r.main)}</span>`);
+    if(r.note)q.push(`<span class="note">${r.note}</span>`);
+    if(r.right!=null)q.push(`<span class="right ${r.dir||''}">${esc(r.right)}</span>`);
+    return `<div class="wr">${q.join('')}</div>`;
+  }).join('');
+}
+
+/* ═══ 真实数据（11-20 盘后），全部映射进固定五区 ═══ */
+const WIDGETS=[
+{title:'今天的结论',span2:true,pills:[{tone:'bad',text:'逆风 · 第 4 天'},{tone:'warn',text:'托市中 · 第 1 天'}],age:'盘后',ops:['历次结论 →','问大盘分析师 →'],
+ metrics:[{k:'连续逆风',v:'4 天',s:'自 11-15 起'},{k:'疑似托市',v:'511 亿',s:'11-19 · 2 组宽基',dir:'up'},{k:'距改判',v:'差 6 / 中 4',s:'变好未齐'}],
+ answer:'成交冷清，融资余额还在降，没有新钱推动；11-19 起<b>疑似托市 511 亿</b>，今天第 1 天。闸门<b>不过 · 只减不加</b>：反弹多半只是反弹。',
+ checks:[
+  {label:'变好还差 6 格',items:[{short:'宽基净流入',now:'+7.62%'},{short:'成交回暖',now:'冷清'},{short:'解开背离',now:'未背离'},{short:'上涨过半',now:'占 6%'},{short:'趋势向上',now:'向下'},{short:'追涨赚钱',now:'−3.33%'}]},
+  {label:'变差已中 4 格',items:[{on:true,short:'两融加速',now:'加速降'},{on:true,short:'跌破前低',now:'4 指数'},{on:true,short:'成交冷清',now:'冷清'},{on:true,short:'广度偏弱',now:'占 6%'}]}],
+ foot:'按框架规则得出，不构成投资建议 · 生成于 21:55'},
+{title:'指数',pills:[{tone:'bad',text:'0/4 上 60 日线'}],age:'11-20',ops:['行情 →'],
+ metrics:[{k:'上证指数',v:'3534',s:'−1.23%',dir:'dn'},{k:'中证 1000',v:'5649',s:'−4.89%',dir:'dn'},{k:'创业板指',v:'2212',s:'−3.54%',dir:'dn'}],
+ answer:'全面破位：<b>4 只主要指数全部跌破 20 日前低、全部在 60 日线下</b>；小盘弱于大盘（1000 五日 −11.1% vs 300 −1.5%）。',
+ table:{head:['指数','收盘','今日','3 日','20 日','前低'],rows:[
+  ['上证指数','3534','−1.23%','−1.4%','−4.2%','破'],['沪深 300','3955','−0.76%','−0.6%','−3.7%','破'],
+  ['中证 1000','5649','−4.89%','−7.3%','−16.1%','破'],['创业板指','2212','−3.54%','−3.5%','−17.6%','破']]},
+ foot:'前复权 · 20 日线 0/4 站上'},
+{title:'市场资金',pills:[{tone:'warn',text:'没有'}],age:'11-20',ops:['看依据 →'],
+ metrics:[{k:'成交额',v:'1.42 万亿',s:'比平时冷清'},{k:'宽基净申购',v:'+861 亿',s:'份额 T+1',dir:'up'},{k:'融资净买入',v:'−154 亿',s:'加速下降',dir:'dn'}],
+ answer:'新钱基本没有：净申购是被动资金在接，<b>不等于主动增量</b>；借钱炒股的余额还在降。',
+ rows:[
+  {pre:'活跃吗',main:'比平时冷清'},{pre:'新钱吗',main:'基本没有'},
+  {main:'与走势同看',note:'近 5 日宽基份额合计<b>净增 317.0 亿份，净申购 4 天</b>'}],
+ foot:'Mz 偏离自身 60 日常态 · ETF 份额 T+1（11-19）'},
+{title:'大盘结构',pills:[{tone:'bad',text:'冰点'}],age:'11-20',ops:['看依据 →'],
+ metrics:[{k:'上涨占比',v:'6%',s:'313 / 5236',dir:'dn'},{k:'炸板率',v:'20%',s:'涨停 28 / 跌停 58'},{k:'昨涨停今日',v:'−3.33%',s:'最高 4 板',dir:'dn'}],
+ answer:'短线情绪冰点：全 A 仅 <b>8%</b> 站上 20 日线；成长杀得深（创业板 20 日 −17.6%）。',
+ groups:[{label:'风格轮动',rows:[
+  {main:'偏强',note:'芯片 · 电力公用 · 保险'},{main:'在出',note:'房地产 · 银行 · 黄金'},
+  {main:'偏弱',note:'液冷 · 铜缆高速连接 · 商贸零售'}]}],
+ foot:'由大盘分析师按当日数据整理'},
+{title:'板块',pills:[{tone:'warn',text:'在攻 2 · 在出 15'}],age:'11-20',ops:['看全部 44 →'],
+ metrics:[{k:'左侧（价跌钱进）',v:'6 个',s:'游戏·医疗·芯片等'},{k:'潜伏（净申购先到）',v:'2 个',s:'保险 · 家用电器'},{k:'钱出最狠',v:'黄金',s:'−12.9 亿 · −3.6σ',dir:'dn'}],
+ answer:'钱在左侧堆、右侧撤：<b>退潮桶 15 个</b>为最大桶，白酒·银行高位没钱；芯片在偏强侧。',
+ groups:[
+  {label:'钱出得最狠（近 3 日）',rows:[
+   {main:'黄金',note:'明显在出 −3.6',right:'−12.9 亿',dir:'dn'},
+   {main:'银行',note:'在出 −4.4 · 放量 1.34×',right:'−9.3 亿',dir:'dn'},
+   {main:'房地产',note:'明显在出 −4.5',right:'−2.7 亿',dir:'dn'}]}],
+ foot:'涨跌按自身近 3 日累计 · 桶间每日迁桶'},
+{title:'个股资金流',pills:[{tone:'warn',text:'1 进 2 出'}],age:'11-20',ops:['问资金流分析师 →'],
+ metrics:[{k:'宁德时代 5 日',v:'+11.8 亿',s:'转入',dir:'up'},{k:'兆易创新 5 日',v:'−25.5 亿',s:'加速出',dir:'dn'},{k:'三花智控 5 日',v:'−4.1 亿',s:'转出',dir:'dn'}],
+ answer:'自选里只有宁德在进且在加速；兆易创新流出最快，5 日 <b>−25.5 亿</b>。',
+ table:{head:['自选','1 日','3 日','5 日','路径'],rows:[
+  ['宁德时代','+0.89','+4.28','+11.81','转入'],['三花智控','−0.77','−2.27','−4.07','转出'],
+  ['兆易创新','−7.25','−6.92','−25.52','加速出']]},
+ foot:'东财大资金净额（亿）· 问「对比 A B C」自动生成'},
+{title:'热闻',pills:[{tone:'flat',text:'百度财经'}],age:'11-20',ops:['问新闻分析师 →'],
+ metrics:[{k:'榜首热度',v:'484 万',s:'美联储议息'},{k:'上榜条数',v:'20 条',s:'Top 20'},{k:'涉自选',v:'0 条',s:'暂无直接关联'}],
+ answer:'关注集中在<b>政策与海外利率</b>：美联储 12 月议息、购置税退坡、半导体国产化。',
+ rows:[
+  {pre:'01',note:'美联储 12 月议息临近，降息预期反复',right:'484万'},
+  {pre:'02',note:'新能源车购置税优惠退坡进入倒计时',right:'468万'},
+  {pre:'03',note:'半导体设备国产化率提速，订单能见度延长',right:'452万'},
+  {pre:'04',note:'央行公开市场连续净投放，资金面边际转松',right:'391万'}],
+ foot:'热榜加权 Top N · 只是热度不是利好'},
+{title:'宏观',pills:[{tone:'flat',text:'平 · 3.4 分'}],age:'月频',ops:['看依据 →'],
+ metrics:[{k:'方向分',v:'3.4',s:'2.5–4.0 中性'},{k:'企业盈利',v:'4 分',s:'利润改善',dir:'up'},{k:'政策',v:'3 分',s:'7 天无大事'}],
+ answer:'企业赚钱有支撑；政策与流动性中性，外部（人民币 6.69 / 美债 5.04%）略拖累。',
+ rows:[
+  {main:'政策',right:'3',note:'近 7 天没有降准降息或汇金增持的官方标题'},
+  {main:'流动性',right:'3',note:'M1 同比回升，剪刀差 2.7 个百分点在收窄'},
+  {main:'外部',right:'—',note:'人民币走弱 6.6881 · 美债 5.04% 下行 · 恒生 5 日 −7.9%'}],
+ foot:'1/3/5 分规则速算 · 政策权重 35% · 位置不是预测'},
+{title:'日历',pills:[{tone:'warn',text:'解禁高峰'}],age:'11-20',ops:['看依据 →'],
+ metrics:[{k:'未来 10 天解禁',v:'15.59 亿股',s:'12368 条'},{k:'新股申购',v:'3 只',s:'下周'},{k:'涉自选',v:'0 件',s:'暂无'}],
+ answer:'<b>解禁高峰周</b>叠加股指交割（今天），下周一起连续三只新股申购。',
+ rows:[
+  {pre:'11-20 五',note:'股指期货交割（遇休市顺延）',right:'交割'},
+  {pre:'11-23 一',note:'1 只新股申购',right:'IPO'},
+  {pre:'11-25 三',note:'1 只新股申购',right:'IPO'},
+  {pre:'11-26 四',note:'1 只新股申购',right:'IPO'}],
+ foot:'解禁按股数 · 只提示不改档位'},
+{title:'外盘',pills:[{tone:'flat',text:'偏弱'}],age:'隔夜',ops:['＋ 添加'],
+ metrics:[{k:'标普 500',v:'5988',s:'−0.61%',dir:'dn'},{k:'纳指',v:'19223',s:'−0.83%',dir:'dn'},{k:'费半',v:'5121',s:'−1.24%',dir:'dn'}],
+ answer:'隔夜美股普跌、<b>费半领跌 −1.24%</b>；KOSPI 逆势 +0.35%，人民币走弱至 6.6881。',
+ rows:[
+  {main:'KOSPI',right:'2451.2',note:'+0.35%',dir:'up'},
+  {main:'美债 10Y',right:'5.04%',note:'收益率下行'},
+  {main:'人民币',right:'6.6881',note:'兑离岸走弱',dir:'dn'}],
+ foot:'隔夜收盘 · 影响开盘情绪不构成结论'},
+];
+document.getElementById('grid').innerHTML = WIDGETS.map(renderWidget).join('');
+</script>
+</body>
+</html>
